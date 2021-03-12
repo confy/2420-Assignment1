@@ -1,0 +1,50 @@
+#!/bin/bash
+usage () {
+	echo "usage:"
+	echo '  reminder                   (prints all reminders)'
+	echo '  reminder -A <new reminder> (adds a new reminder)'
+	echo '  reminder -h                (prints this help page)'
+}
+
+REMINDER_FILE="$HOME/.config/${0##*/}/reminder"
+
+
+if [ ! -e "$REMINDER_FILE" ]
+then
+	mkdir -p $(dirname $REMINDER_FILE) && touch $REMINDER_FILE
+fi
+
+if [[ "$@" == "" ]]
+then
+	output=$(cat "$REMINDER_FILE")
+	if [ "$output" == "" ]
+	then
+		echo "You have no reminders"
+		exit 0
+	fi
+	echo "$output"
+	exit 0
+fi
+
+
+while getopts "Ah" opt
+do
+	case $opt in
+		A) shift
+		   reminder="$*"
+		   if [ "$reminder" == "" ]
+		   then
+			   echo "Please enter a reminder to add"
+			   usage
+			   exit 1
+		   fi
+		   echo "$reminder" >> "$REMINDER_FILE"
+		   exit 0;;
+		h) usage
+		   exit 0;;
+		?) usage
+		   exit 1;;
+	esac
+done
+
+

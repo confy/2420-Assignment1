@@ -1,0 +1,53 @@
+#!/bin/bash
+TRASH_DIR="$HOME/.trash"
+NOW=$(date +"%F-%H:%M:%S")
+
+usage () {
+	echo "usage:"
+	echo "  trash <file>"
+	echo "  trash -d <directory>"
+}
+
+if [[ "$@" == "" ]]
+then
+	echo "No arguments specified"
+	usage
+	exit 1
+fi
+
+if [ ! -d "$TRASH_DIR" ]
+then
+	mkdir $TRASH_DIR
+fi
+
+while getopts "dh" option
+do
+	case $option in
+		d) if [ ! -d "$2" ]
+		   then
+		   	echo "$2 is not a directory"
+			usage
+			exit 1
+		   else
+		   	mv "$2" "$TRASH_DIR/$2-$NOW"
+		   fi
+		     exit 0;;
+		h) usage
+		   exit 0;;
+		?) usage
+		   exit 1;;
+	esac
+done
+if [ ! -e "$1" ]
+then
+	echo "$1 does not exist"
+	exit 1
+fi
+
+if [ -d "$1" ]
+then
+	echo "$1 is a directory"
+	usage
+else
+	mv $1 "$TRASH_DIR/$1-$NOW"
+fi
